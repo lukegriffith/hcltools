@@ -51,8 +51,7 @@ func main() {
 
 }
 
-
-func get(x interface{}, s *hclStrings) {
+func get(x ast.Node, s *HCLTokens) {
 
 
   obj, ok := x.(*ast.ObjectType)
@@ -63,6 +62,33 @@ func get(x interface{}, s *hclStrings) {
     for _, item := range obj.List.Items {
       get(item, s)
     }
+    return
+  }
+
+  list, ok := x.(*ast.ObjectList)
+
+  if ! ok {
+    fmt.Println("Not Object List")
+
+    fmt.Println(spew.Sdump(list))
+  } else {
+    for _, item := range list.Items {
+      get(item, s)
+    }
+    return
+  }
+
+
+  listType, ok := x.(*ast.ListType)
+
+  if ! ok {
+    fmt.Println("Not List type")
+
+  } else {
+    for _, item := range listType.List {
+      get(item, s)
+    }
+    return
   }
 
   objItem, ok := x.(*ast.ObjectItem)
@@ -70,11 +96,19 @@ func get(x interface{}, s *hclStrings) {
   if ! ok {
     fmt.Println("Not object item")
   } else {
-    value := objItem.Val.(*ast.LiteralType)
+    value, ok := objItem.Val.(*ast.LiteralType)
+
+    if ! ok {
+      fmt.Println("Unable to convert to LiteralType.")
+      return
+    }
+
     token := value.Token
-    s.AddString(token.Text)
+    s.AddString(token.Text, token.Pos)
+    return
   }
+
+  return
 }
-
-
+ 
 
