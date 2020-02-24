@@ -34,7 +34,11 @@ func main() {
 	}
 
 	for _, r := range repos {
-		parseRepo(r, checkoutDir, moduleList)
+		err = parseRepo(r, checkoutDir, moduleList)
+
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	moduleList.PrintModules()
@@ -49,9 +53,8 @@ func args(repoFile *string, checkoutDir *string) {
 
 	flag.Parse()
 
-	if *repoFile == "" || *checkoutDir == "" {
+	if *repoFile == "" { // || *checkoutDir == "" {
 		flag.Usage()
 		os.Exit(0)
 	}
 }
-
